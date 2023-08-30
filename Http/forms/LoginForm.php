@@ -1,23 +1,23 @@
 <?php
 
-namespace Http\Forms;
+namespace Http\forms;
 
 use core\Validator;
 
-class LoginForm
+class LoginForm implements Form
 {
 
     protected $errors;
 
-    public function validate($email, $password)
+    public function validate($data)
     {
 
-        if(!Validator::email($email)) {
+        if(!Validator::email($data['email'])) {
 
             $this->errors['email'] = ['You should provide a valid email address.'];
         }
 
-        if(!Validator::string($password, 7, 255)) {
+        if(!Validator::string($data['password'], 1, 255)) {
 
             $this->errors['password'] = ['Please provide a valid password. !'];
         }

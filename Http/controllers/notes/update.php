@@ -1,49 +1,42 @@
 <?php
 
 use core\App;
-use core\Validator;
+use \Http\forms\CreateNoteForm;
 
 $db = App::resolve(\core\Database::class);
 
 $currentUserId = 1;
-
-$errors = [];
 
 $note = $db->query("SELECT * FROM notes WHERE id = :id", [
     'id' => $_POST['id']
 ])->findOrFail();
 
 
-$title = $_POST['title'];
-$body = $_POST['body'];
+$data = [
+    'body' => $_POST['body'],
+    'title' => $_POST['title']
+];
+
+$form = new CreateNoteForm();
 
 
 authorize($note['user_id'] == $currentUserId); // GLOBAL AUTHORIZE FUNCTION (authorizes certain condition and aborts upon failure).
 
-if(!Validator::string($body, 1, 100)) {
-
-    $errors['body'] = ['A body of no more than 100 characters is required !'];
-}
-
-if(!Validator::string($title, 1, 20)) {
-
-    $errors['title'] = ['A title of no more than 20 characters is required !'];
-}
-
-if(!empty($errors)) {
+if(!$form->validate($data)) {
 
     view('notes/edit.view.php', [
         'heading' => 'Create Note',
-        'errors' => $errors,
+        'errors' => $form->errors(),
         'note' => $note
     ]);
 
     die();
 }
 
+
 $db->query("UPDATE notes SET title = :title, body = :body WHERE id = :note_id", [
-    'title' => $title,
-    'body' => $body,
+    'title' => $data['title'],
+    'body' => $data['body'],
     'note_id' => $_POST['id']
 ]);
 

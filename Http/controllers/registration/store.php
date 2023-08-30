@@ -1,37 +1,30 @@
 <?php
 
-use core\Validator;
 use core\App;
+use \Http\forms\RegisterForm;
+
 
 $db = App::resolve(\core\Database::class);
 
-$errors = [];
+$data = [
+    'email' => $_POST['email'],
+    'password' => $_POST['password']
+];
 
-$email = $_POST['email'];
-$password = $_POST['password'];
+$form = new RegisterForm();
 
-if(!Validator::email($email)) {
-
-    $errors['email'] = ['You should provide a valid email address.'];
-}
-
-if(!Validator::string($password, 7, 255)) {
-
-    $errors['password'] = ['A password of at least 7 characters. !'];
-}
-
-if(!empty($errors)) {
+if(!$form->validate($data)) {
 
     view('registration/create.view.php', [
         'heading' => 'Register',
-        'errors' => $errors
+        'errors' => $form->errors()
     ]);
 
     die();
 }
 
 $user = $db->query("SELECT * FROM users WHERE email = :email", [
-    'email' => $email
+    'email' => $data['email']
 ])->find();
 
 if($user) {
@@ -42,11 +35,11 @@ if($user) {
 } else {
 
     $db->query("INSERT INTO users(email, password) VALUES (:email, :password)", [
-        'email' => $email,
-        'password' => password_hash($password, PASSWORD_BCRYPT),
+        'email' => $data['email'],
+        'password' => password_hash($data['password'], PASSWORD_BCRYPT),
     ]);
 
-    login(['email' => $email]);
+    login(['email' => $data['email']]);
 
     header('location: /');
     die();

@@ -1,39 +1,30 @@
 <?php
 
-use core\Validator;
 use core\App;
+use \Http\forms\CreateNoteForm;
 
 $db = App::resolve(\core\Database::class);
 
-$errors = [];
+$data = [
+    'body' => $_POST['body'],
+    'title' => $_POST['title']
+];
 
-$body = $_POST['body'];
-$title = $_POST['title'];
+$form = new CreateNoteForm();
 
-if(!Validator::string($body, 1, 100)) {
-
-    $errors['body'] = ['A body of no more than 100 characters is required !'];
-}
-
-if(!Validator::string($title, 1, 20)) {
-
-    $errors['title'] = ['A title of no more than 20 characters is required !'];
-}
-
-if(!empty($errors)) {
+if(!$form->validate($data)) {
 
     view('notes/create.view.php', [
         'heading' => 'Create Note',
-        'errors' => $errors
+        'errors' => $form->errors()
     ]);
 
     die();
 }
 
-
 $db->query("INSERT INTO notes(title, body, user_id) VALUES(:title, :body, :user_id)", [
-    'body' => $body,
-    'title' => $title,
+    'title' => $data['title'],
+    'body' => $data['body'],
     'user_id' => 1
 ]);
 
