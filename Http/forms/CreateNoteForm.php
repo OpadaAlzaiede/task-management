@@ -6,7 +6,7 @@ namespace Http\forms;
 
 use core\Validator;
 
-class CreateNoteForm implements Form
+class CreateNoteForm extends Form
 {
     protected $errors;
 

@@ -2,6 +2,7 @@
 
 use core\App;
 use Http\forms\LoginForm;
+use \core\Authenticator;
 
 $db = App::resolve(\core\Database::class);
 
@@ -14,39 +15,19 @@ $data = [
 
 $form = new LoginForm();
 
-if(!$form->validate($data)) {
+if($form->validate($data)) {
 
-    view('auth/login.view.php', [
-        'heading' => 'Login',
-        'errors' => $form->errors()
-    ]);
+    if((new Authenticator)->attempt($data['email'], $data['password'])) {
 
-    die();
-}
-
-
-$user = $db->query("SELECT * FROM users WHERE email = :email", [
-    'email' => $data['email']
-])->find();
-
-if($user) {
-
-    if(password_verify($data['password'], $user['password']))
-    {
-        login($user);
-
-        header('location: /');
-        die();
-
+        redirect("/");
     }
 
+    $form->error('email', ['No matching found for that email address.']);
 }
-
-$errors['email'] = ['No matching found for that email address.'];
 
 view('auth/login.view.php', [
     'heading' => 'Login',
-    'errors' => $errors
+    'errors' => $form->errors()
 ]);
 
 die();

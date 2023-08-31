@@ -2,6 +2,7 @@
 
 use core\App;
 use \Http\forms\RegisterForm;
+use \core\Authenticator;
 
 
 $db = App::resolve(\core\Database::class);
@@ -39,7 +40,7 @@ if($user) {
         'password' => password_hash($data['password'], PASSWORD_BCRYPT),
     ]);
 
-    login(['email' => $data['email']]);
+    (new Authenticator)->login(['email' => $data['email']]);
 
     header('location: /');
     die();

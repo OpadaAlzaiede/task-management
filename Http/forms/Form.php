@@ -2,9 +2,15 @@
 
 namespace Http\forms;
 
-interface Form {
+abstract class Form {
 
-    public function validate($data);
-    public function errors();
+    protected $errors;
 
+    abstract public function validate($data);
+    abstract public function errors();
+
+    public function error($field, $message) {
+
+        $this->errors[$field] = $message;
+    }
 }

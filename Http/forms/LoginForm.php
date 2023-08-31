@@ -4,7 +4,7 @@ namespace Http\forms;
 
 use core\Validator;
 
-class LoginForm implements Form
+class LoginForm extends Form
 {
 
     protected $errors;
